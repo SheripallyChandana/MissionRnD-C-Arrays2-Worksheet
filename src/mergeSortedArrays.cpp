@@ -21,6 +21,89 @@ struct transaction {
 	char description[20];
 };
 
+void convertDateInCharsToIntegers3(char* dateInChars, int* date, int* month, int* year){
+
+	int result = 0;
+	bool hiphenCount = false;
+	int index;
+
+	for (index = 0; dateInChars[index] != '\0'; ++index){
+
+		if (dateInChars[index] == '-'){
+			if (hiphenCount == true){
+				*month = result;
+				result = 0;
+			}
+			else{
+				*date = result;
+				result = 0;
+				hiphenCount = true;
+			}
+			continue;
+		}
+
+		result = result * 10 + dateInChars[index] - '0';
+	}
+	*year = result;
+}
+
+int compare3(char* d1, char* d2){
+
+	int date1, date2, month1, month2, year1, year2;
+
+	convertDateInCharsToIntegers3(d1, &date1, &month1, &year1);
+	convertDateInCharsToIntegers3(d2, &date2, &month2, &year2);
+
+	if (year1 == year2){
+		if (month1 == month2){
+			if (date1 == date2){
+				return 0;
+			}
+			else if (date1 < date2){
+				return -1;
+			}
+			else { return 1; }
+		}
+		else if (month1 < month2){
+			return -1;
+		}
+		else{
+			return 1;
+		}
+	}
+	else if (year1 < year2)
+		return -1;
+	else
+		return 1;
+}
+
+
 struct transaction * mergeSortedArrays(struct transaction *A, int ALen, struct transaction *B, int BLen) {
-	return NULL;
+
+	if (A == NULL || B == NULL || (ALen < 1 && BLen < 1))
+		return NULL;
+
+	struct transaction* common;
+	common = (struct transaction*)calloc(ALen + BLen, sizeof(struct transaction));
+	int commonIndex = 0;
+	int AIndex = 0;
+	int BIndex = 0;
+
+	while (AIndex < ALen && BIndex < BLen){
+		if (compare3(A[AIndex].date, B[BIndex].date) <= 0)
+			common[commonIndex++] = A[AIndex++];
+		else
+			common[commonIndex++] = B[BIndex++];
+	}
+
+	while (AIndex < ALen){
+		common[commonIndex++] = A[AIndex++];
+	}
+	while (BIndex < BLen){
+		common[commonIndex++] = B[BIndex++];
+	}
+
+	if (commonIndex == -1)
+		return NULL;
+	return common;
 }
